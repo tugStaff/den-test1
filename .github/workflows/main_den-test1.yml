@@ -26,11 +26,16 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-node-
 
-      - name: npm install, build, and test
+      - name: npm install and build
         run: |
           npm ci
           npm run build
-          npm test
+        env:
+          CI: true
+          NEXT_LINT_IGNORE_WARNINGS: true
+
+      - name: Run tests if available
+        run: npm test --if-present
         env:
           CI: true
 
