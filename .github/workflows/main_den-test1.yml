@@ -52,6 +52,22 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
       
+      - name: 'Configure Azure App Service settings'
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'den-web'
+          app-settings-json: |
+            [
+              {
+                "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                "value": "false"
+              },
+              {
+                "name": "WEBSITE_RUN_FROM_PACKAGE",
+                "value": "1"
+              }
+            ]
+      
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -60,3 +76,4 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_99E2123302E4467689950BE5488443C6 }}
+          clean: true
