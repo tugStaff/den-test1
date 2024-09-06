@@ -32,12 +32,15 @@ export default function Home() {
             className="mb-4"
           />
           {imageSrc && (
-            <img
-              src={imageSrc}
-              alt="Captured"
-              style={{ maxWidth: '100%', marginTop: '20px' }}
-              className="rounded-lg shadow-lg"
-            />
+            <div style={{ position: 'relative', width: '100%', maxWidth: '500px', height: '300px' }}>
+              <Image
+                src={imageSrc}
+                alt="Captured"
+                layout="fill"
+                objectFit="contain"
+                className="rounded-lg"
+              />
+            </div>
           )}
         </div>
       </main>
