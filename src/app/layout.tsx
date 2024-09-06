@@ -17,9 +17,13 @@ export const metadata: Metadata = {
   title: "den-test1",
   description: "A simple PWA for capturing and displaying images",
   manifest: '/manifest.json',
-  themeColor: '#000000',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  //themeColor: '#000000',
+  //viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
+
+export const viewport = 'width=device-width, initial-scale=1, maximum-scale=1';
+
+export const themeColor = '#000000';
 
 export default function RootLayout({
   children,

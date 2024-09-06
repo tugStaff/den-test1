@@ -4,7 +4,6 @@ import withPWA from 'next-pwa';
 const nextConfig = {
   output: 'standalone',
   experimental: {
-    appDir: true,
   },
 };
 
