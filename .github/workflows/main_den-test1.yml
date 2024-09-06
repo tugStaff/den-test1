@@ -61,6 +61,22 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_548E152AA7A14FA99EFA9FADAFA37BFA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F7D9946B61264B6985A4CD42FE0C1453 }}
 
+      - name: 'Configure Azure App Service settings'
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'den-web'
+          app-settings-json: |
+            [
+              {
+                "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                "value": "false"
+              },
+              {
+                "name": "WEBSITE_RUN_FROM_PACKAGE",
+                "value": "1"
+              }
+            ]
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
