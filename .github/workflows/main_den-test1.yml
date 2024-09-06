@@ -26,8 +26,9 @@ jobs:
       - name: Prepare deployment package
         run: |
           mkdir -p deployment
-          cp -r .next/* deployment/
-          cp -r public deployment/public
+          cp -r .next deployment/
+          cp -r public deployment/
+          cp package.json deployment/
           cp next.config.mjs deployment/
 
       - name: Zip artifact for deployment
