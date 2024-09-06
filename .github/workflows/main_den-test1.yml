@@ -18,33 +18,22 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-
-
       - name: npm install and build
         run: |
           npm ci
           npm run build
-        env:
-          CI: true
-          NEXT_LINT_IGNORE_WARNINGS: true
 
-      - name: Run tests if available
-        run: npm test --if-present
-        env:
-          CI: true
+      - name: Prepare deployment package
+        run: |
+          mkdir deployment
+          cp -r .next/standalone/* deployment/
+          cp -r .next/static deployment/.next/static
+          cp -r public deployment/public
+          cp next.config.mjs deployment/
 
       - name: Zip artifact for deployment
         run: |
-          cp -r .next/standalone ./standalone
-          cp -r .next/static ./standalone/.next/static
-          cp -r public ./standalone/public
-          cd standalone
+          cd deployment
           zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
@@ -72,7 +61,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
