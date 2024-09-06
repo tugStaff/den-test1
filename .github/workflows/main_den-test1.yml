@@ -15,37 +15,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: Get current timestamp
-        id: timestamp
-        run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-
       - name: npm install, build, and test
         run: |
           npm ci
-          npm run build --if-present
-          npm run test --if-present
+          npm run build
+          npm test
+        env:
+          CI: true
 
-      - name: Prepare deployment package
-        run: |
-          mkdir -p deploy
-          cp -r * deploy/ || true
-          echo ${{ steps.timestamp.outputs.timestamp }} > deploy/deploy_timestamp.txt
-          cd deploy && zip -r ../release.zip .
+      - name: Zip artifact for deployment
+        run: zip release.zip ./build/* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
           path: release.zip
-          retention-days: 1
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,8 +44,6 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -72,22 +61,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_548E152AA7A14FA99EFA9FADAFA37BFA }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F7D9946B61264B6985A4CD42FE0C1453 }}
 
-      - name: 'Configure Azure App Service settings'
-        uses: azure/appservice-settings@v1
-        with:
-          app-name: 'den-test1'
-          app-settings-json: |
-            [
-              {
-                "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
-                "value": "false"
-              },
-              {
-                "name": "WEBSITE_RUN_FROM_PACKAGE",
-                "value": "1"
-              }
-            ]
-
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -95,11 +68,3 @@ jobs:
           app-name: 'den-test1'
           slot-name: 'Production'
           package: .
-          clean: true
-          
-      - name: 'Verify deployment'
-        run: |
-          echo "Deployed files:"
-          ls -R
-          echo "Deployment timestamp:"
-          cat deploy_timestamp.txt
