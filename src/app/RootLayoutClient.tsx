@@ -3,10 +3,19 @@
 import { useEffect, useState } from 'react';
 import OneSignal from 'react-onesignal';
 
+// カスタム型定義
+interface CustomFont {
+  className: string;
+  style: {
+    fontFamily: string;
+  };
+  variable: string;
+}
+
 interface RootLayoutClientProps {
   children: React.ReactNode;
-  geistSans: any;
-  geistMono: any;
+  geistSans: CustomFont;
+  geistMono: CustomFont;
 }
 
 export default function RootLayoutClient({ children, geistSans, geistMono }: RootLayoutClientProps) {

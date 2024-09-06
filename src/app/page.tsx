@@ -20,7 +20,8 @@ export default function Home() {
 
   const handleEnableNotifications = async () => {
     try {
-      const result = await (OneSignal as any).showSlidedownPrompt();
+      // OneSignalの型定義が不完全な場合の対処
+      const result = await (OneSignal as unknown as { showSlidedownPrompt: () => Promise<any> }).showSlidedownPrompt();
       console.log('Slidedown prompt result:', result);
     } catch (error) {
       console.error('Error showing notification prompt:', error);
@@ -37,7 +38,6 @@ export default function Home() {
           <input
             type="file"
             accept="image/*"
-            capture="environment"
             onChange={handleCapture}
             className="mb-4"
           />
