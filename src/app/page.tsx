@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from "next/image";
+import OneSignal from 'react-onesignal';
 
 export default function Home() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -14,6 +15,15 @@ export default function Home() {
         setImageSrc(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEnableNotifications = async () => {
+    try {
+      const result = await (OneSignal as any).showSlidedownPrompt();
+      console.log('Slidedown prompt result:', result);
+    } catch (error) {
+      console.error('Error showing notification prompt:', error);
     }
   };
 
@@ -42,6 +52,12 @@ export default function Home() {
               />
             </div>
           )}
+          <button
+            onClick={handleEnableNotifications}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Enable Notifications
+          </button>
         </div>
       </main>
     </div>
