@@ -40,7 +40,12 @@ jobs:
           CI: true
 
       - name: Zip artifact for deployment
-        run: zip release.zip .next package.json next.config.mjs public -r
+        run: |
+          cp -r .next/standalone ./standalone
+          cp -r .next/static ./standalone/.next/static
+          cp -r public ./standalone/public
+          cd standalone
+          zip -r ../release.zip .
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
