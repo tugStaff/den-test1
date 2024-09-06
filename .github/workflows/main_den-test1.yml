@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - den-test1
+name: Build and deploy Next.js app to Azure Web App - den-test1
 
 on:
   push:
@@ -21,6 +18,14 @@ jobs:
         with:
           node-version: '20.x'
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-node-
+
       - name: npm install, build, and test
         run: |
           npm ci
@@ -30,7 +35,7 @@ jobs:
           CI: true
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./build/* -r
+        run: zip release.zip .next package.json next.config.mjs public -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -72,3 +77,6 @@ jobs:
           app-name: 'den-test1'
           slot-name: 'Production'
           package: .
+
+      - name: Delete zip file
+        run: rm release.zip
