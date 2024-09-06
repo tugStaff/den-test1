@@ -95,6 +95,7 @@ jobs:
           app-name: 'den-test1'
           slot-name: 'Production'
           package: .
+          clean: true
           
       - name: 'Verify deployment'
         run: |
