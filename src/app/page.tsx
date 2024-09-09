@@ -1,11 +1,26 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from "next/image";
 import OneSignal from 'react-onesignal';
 
 export default function Home() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+
+  useEffect(() => {
+    checkSubscriptionStatus();
+  }, []);
+
+  const checkSubscriptionStatus = async () => {
+    try {
+      const permission = await OneSignal.Notifications.permission;
+      setIsSubscribed(permission);
+    } catch (error) {
+      console.error('Error checking notification permission:', error);
+    }
+  };
 
   const handleCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -18,13 +33,37 @@ export default function Home() {
     }
   };
 
-  const handleEnableNotifications = async () => {
+  const subscribeUser = async () => {
     try {
-      // OneSignalの型定義が不完全な場合の対処
-      const result = await (OneSignal as any).showSlidedownPrompt();
-      console.log('Slidedown prompt result:', result);
+      const result = await OneSignal.Notifications.requestPermission();
+      await checkSubscriptionStatus();
+      console.log('User subscription result:', result);
     } catch (error) {
-      console.error('Error showing notification prompt:', error);
+      console.error('Failed to subscribe the user: ', error);
+    }
+  };
+
+  const sendNotification = async () => {
+    if (!notificationMessage) {
+      alert('Please enter a message for the notification.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: notificationMessage }),
+      });
+      const data = await response.json();
+      console.log('Notification sent:', data);
+      alert('Notification sent successfully!');
+      setNotificationMessage('');
+    } catch (error) {
+      console.error('Failed to send notification:', error);
+      alert('Failed to send notification. Please try again.');
     }
   };
 
@@ -52,11 +91,28 @@ export default function Home() {
               />
             </div>
           )}
+        </div>
+        <button
+          onClick={subscribeUser}
+          disabled={isSubscribed}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          {isSubscribed ? 'Subscribed to notifications' : 'Subscribe to notifications'}
+        </button>
+        <div className="flex flex-col items-center gap-4 w-full max-w-md">
+          <input
+            type="text"
+            value={notificationMessage}
+            onChange={(e) => setNotificationMessage(e.target.value)}
+            placeholder="Enter notification message"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <button
-            onClick={handleEnableNotifications}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={sendNotification}
+            disabled={!isSubscribed}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
           >
-            Enable Notifications
+            Send Notification
           </button>
         </div>
       </main>
