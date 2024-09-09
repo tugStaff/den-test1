@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -17,17 +18,16 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: npm install and build
         env:
           NEXT_PUBLIC_ONESIGNAL_APP_ID: ${{ secrets.NEXT_PUBLIC_ONESIGNAL_APP_ID }}
         run: |
           npm ci
           npm run build
           npm run test --if-present
-          npm prune --production
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip .next package.json package-lock.json public server.js next.config.mjs node_modules
+        run: zip release.zip ./* .next -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -45,15 +45,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
+  
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -68,9 +65,7 @@ jobs:
         with:
           app-name: 'den-test1'
           slot-name: 'Production'
-          package: .
-          clean: true
+          package: release.zip
 
-      - name: Delete deployment files
-        run: |
-          rm release.zip
+      - name: Delete zip file
+        run: rm release.zip
