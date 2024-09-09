@@ -15,8 +15,13 @@ export default function Home() {
 
   const checkSubscriptionStatus = async () => {
     try {
-      const permission = await OneSignal.Notifications.permission;
-      setIsSubscribed(permission);
+      const isPushSupported = await (OneSignal as any).isPushNotificationsSupported();
+      if (isPushSupported) {
+        const permission = await (OneSignal as any).getNotificationPermission();
+        setIsSubscribed(permission === 'granted');
+      } else {
+        console.log('Push notifications are not supported');
+      }
     } catch (error) {
       console.error('Error checking notification permission:', error);
     }
@@ -35,9 +40,9 @@ export default function Home() {
 
   const subscribeUser = async () => {
     try {
-      const result = await OneSignal.Notifications.requestPermission();
+      const result = await (OneSignal as any).showNativePrompt();
+      console.log('Prompt result:', result);
       await checkSubscriptionStatus();
-      console.log('User subscription result:', result);
     } catch (error) {
       console.error('Failed to subscribe the user: ', error);
     }

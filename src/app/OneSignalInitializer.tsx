@@ -7,9 +7,9 @@ export default function OneSignalInitializer() {
   useEffect(() => {
     const initializeOneSignal = async () => {
       const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
-      const restAppId = process.env.ONESIGNAL_REST_API_KEY;
       
-      console.log(restAppId);
+      console.log('OneSignal App ID:', appId);
+
       if (!appId) {
         console.error('OneSignal App ID is not set in environment variables');
         return;
@@ -19,8 +19,19 @@ export default function OneSignalInitializer() {
         await OneSignal.init({
           appId: appId,
           allowLocalhostAsSecureOrigin: true,
+          serviceWorkerPath: '/OneSignalSDKWorker.js',
+          serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
         });
         console.log('OneSignal initialized successfully');
+
+        // 型アサーションを使用
+        const isPushSupported = await (OneSignal as any).isPushNotificationsSupported();
+        console.log('Push notifications supported:', isPushSupported);
+
+        if (isPushSupported) {
+          const notificationPermissionStatus = await (OneSignal as any).getNotificationPermission();
+          console.log('Notification permission status:', notificationPermissionStatus);
+        }
       } catch (error) {
         console.error('Error initializing OneSignal:', error);
       }
