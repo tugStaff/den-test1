@@ -34,3 +34,33 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE/Editor folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Log files
+*.log
+
+# Optional: Exclude source maps in production
+# *.js.map
+
+# Optional: Exclude specific large files or folders that are not needed in production
+# /public/large-assets/
+
+# Optional: Exclude development-only files
+# /dev-scripts/
+
+# Optional: Exclude documentation files
+# /docs/

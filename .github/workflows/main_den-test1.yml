@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -18,14 +17,17 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install and build
+      - name: npm install, build, and test
+        env:
+          NEXT_PUBLIC_ONESIGNAL_APP_ID: ${{ secrets.NEXT_PUBLIC_ONESIGNAL_APP_ID }}
         run: |
           npm ci
           npm run build
           npm run test --if-present
+          npm prune --production
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* .next -r
+        run: zip release.zip ./* .next -r -x "node_modules/*" "*.git*" "*.github*" "*.vscode*" "*.idea*"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -43,7 +45,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-  
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
