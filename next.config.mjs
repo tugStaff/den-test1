@@ -2,7 +2,8 @@ import withPWA from 'next-pwa';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  //output: 'standalone',
+  reactStrictMode: true,
   experimental: {
   },
   env: {
