@@ -21,7 +21,6 @@ export default function RootLayoutClient({ children, geistSans, geistMono }: Roo
   useEffect(() => {
     OneSignal.init({
       appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID || '',
-      safari_web_id: process.env.NEXT_PUBLIC_ONESIGNAL_SAFARI_WEB_ID,
       allowLocalhostAsSecureOrigin: true,
       serviceWorkerPath: '/OneSignalSDKWorker.js',
       serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
