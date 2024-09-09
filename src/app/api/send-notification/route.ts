@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import https from 'https';
 
+
+export async function GET(request: Request) {
+  const publicEnvVar = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
+  const privateEnvVar = process.env.ONESIGNAL_REST_API_KEY;
+
+  return NextResponse.json({ 
+    publicEnvVar,
+    privateEnvVar: privateEnvVar ? 'Set (value hidden)' : 'Not set'
+  });
+}
+
 export async function POST(request: Request): Promise<Response> {
   try {
     const { message } = await request.json();
