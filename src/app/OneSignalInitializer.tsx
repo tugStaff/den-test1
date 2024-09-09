@@ -8,7 +8,8 @@ export default function OneSignalInitializer() {
     const initializeOneSignal = async () => {
       const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
       
-      console.log('OneSignal App ID:', appId);
+      console.log('OneSignal App ID from environment:', appId);
+      console.log('All NEXT_PUBLIC environment variables:', Object.keys(process.env).filter(key => key.startsWith('NEXT_PUBLIC_')));
 
       if (!appId) {
         console.error('OneSignal App ID is not set in environment variables');
@@ -24,7 +25,7 @@ export default function OneSignalInitializer() {
         });
         console.log('OneSignal initialized successfully');
 
-        // 型アサーションを使用
+        // 追加のデバッグ情報
         const isPushSupported = await (OneSignal as any).isPushNotificationsSupported();
         console.log('Push notifications supported:', isPushSupported);
 
