@@ -27,8 +27,8 @@ jobs:
           npm prune --production
 
       - name: Zip artifact for deployment
-        run: zip release.zip .next package.json package-lock.json public server.js next.config.mjs -r
-  
+        run: zip -r release.zip .next package.json package-lock.json public server.js next.config.mjs node_modules -x "node_modules/@types/*" "node_modules/**/README.md" "node_modules/**/*.d.ts"
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -53,7 +53,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip && rm release.zip
+        run: unzip release.zip -d deploy_content
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -68,5 +68,10 @@ jobs:
         with:
           app-name: 'den-test1'
           slot-name: 'Production'
-          package: .
+          package: deploy_content
           clean: true
+
+      - name: Delete deployment files
+        run: |
+          rm release.zip
+          rm -rf deploy_content
