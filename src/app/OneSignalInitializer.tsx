@@ -7,7 +7,9 @@ export default function OneSignalInitializer() {
   useEffect(() => {
     const initializeOneSignal = async () => {
       const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
+      const restAppId = process.env.ONESIGNAL_REST_API_KEY;
       
+      console.log(restAppId);
       if (!appId) {
         console.error('OneSignal App ID is not set in environment variables');
         return;
