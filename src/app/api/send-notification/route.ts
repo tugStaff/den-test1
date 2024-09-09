@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import https from 'https';
 
 
-export async function GET(request: Request) {
+export async function GET() {
   const publicEnvVar = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
   const privateEnvVar = process.env.ONESIGNAL_REST_API_KEY;
 
