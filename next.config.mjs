@@ -5,6 +5,9 @@ const nextConfig = {
   output: 'standalone',
   experimental: {
   },
+  env: {
+    NEXT_PUBLIC_ONESIGNAL_APP_ID: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+  },
 };
 
 const config = withPWA({
