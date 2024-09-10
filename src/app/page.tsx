@@ -14,7 +14,6 @@ export default function Home() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -99,7 +98,6 @@ export default function Home() {
       const reader = new FileReader();
       reader.onload = function(e) {
         setImageSrc(e.target?.result as string);
-        setCapturedImage(null); // 画像選択時にキャプチャ画像をリセット
       };
       reader.readAsDataURL(file);
     }
@@ -150,7 +148,6 @@ export default function Home() {
         canvasRef.current.height = videoRef.current.videoHeight;
         context.drawImage(videoRef.current, 0, 0);
         const imageDataUrl = canvasRef.current.toDataURL('image/jpeg');
-        setCapturedImage(imageDataUrl);
         setImageSrc(imageDataUrl);
         setSelectedFile(null); // キャプチャ時に選択ファイルをリセット
 
