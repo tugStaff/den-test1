@@ -38,7 +38,7 @@ export default function Home() {
       }
 
       // 購読状態
-      let optedIn = await OneSignal.User.PushSubscription.optedIn;
+      const optedIn = await OneSignal.User.PushSubscription.optedIn;
       const isOptedIn = (optedIn === true)? true : false;
       setIsSubscribed(isOptedIn);
 
