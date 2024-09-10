@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import OneSignalInitializer from './OneSignalInitializer';
+import OneSignalProvider from './OneSignalProvider';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,10 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <OneSignalInitializer />
-        {children}
+        <OneSignalProvider>
+          {children}
+        </OneSignalProvider>
       </body>
     </html>
   );
