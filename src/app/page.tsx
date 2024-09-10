@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from "next/image";
 import OneSignal from 'react-onesignal';
 import { useOneSignal } from './OneSignalProvider';
@@ -14,6 +14,9 @@ export default function Home() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const { isInitialized } = useOneSignal();
 
@@ -88,6 +91,7 @@ export default function Home() {
     }
   };
 
+  //------------------------------------
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -95,8 +99,66 @@ export default function Home() {
       const reader = new FileReader();
       reader.onload = function(e) {
         setImageSrc(e.target?.result as string);
+        setCapturedImage(null); // 画像選択時にキャプチャ画像をリセット
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const [isCameraAvailable, setIsCameraAvailable] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+  useEffect(() => {
+    // モバイルデバイスの検出
+    const checkMobileDevice = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+    };
+    setIsMobileDevice(checkMobileDevice());
+
+    // カメラの利用可能性をチェック
+    const checkCameraAvailability = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasCamera = devices.some(device => device.kind === 'videoinput');
+        setIsCameraAvailable(hasCamera);
+      } catch (error) {
+        console.error('カメラの確認中にエラーが発生しました:', error);
+        setIsCameraAvailable(false);
+      }
+    };
+    checkCameraAvailability();
+  }, []);
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error("カメラの起動に失敗しました:", err);
+      alert("カメラを起動できませんでした。カメラへのアクセスが許可されているか、カメラが正しく接続されているか確認してください。");
+    }
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(videoRef.current, 0, 0);
+        const imageDataUrl = canvasRef.current.toDataURL('image/jpeg');
+        setCapturedImage(imageDataUrl);
+        setImageSrc(imageDataUrl);
+        setSelectedFile(null); // キャプチャ時に選択ファイルをリセット
+
+        // カメラストリームの停止
+        const stream = videoRef.current.srcObject as MediaStream;
+        const tracks = stream.getTracks();
+        tracks.forEach(track => track.stop());
+      }
     }
   };
 
@@ -139,12 +201,25 @@ export default function Home() {
       <main className="flex flex-col gap-8 items-center sm:items-start">
         
       <div className="flex flex-col items-center gap-4">
-          <input
-            type="file"
-            accept="image/*;capture=camera"
-            onChange={handleFileSelect}
-            className="mb-4"
-          />
+          <div className="flex gap-4">
+            <label className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
+              画像を選択
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </label>
+            {(isMobileDevice || isCameraAvailable) && (
+              <button
+                onClick={startCamera}
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              >
+                写真を撮影
+              </button>
+            )}
+          </div>
           {imageSrc && (
             <div style={{ position: 'relative', width: '100%', maxWidth: '500px', height: '300px' }}>
               <Image
@@ -156,11 +231,23 @@ export default function Home() {
               />
             </div>
           )}
+          <video ref={videoRef} style={{ display: 'none' }} autoPlay playsInline></video>
+          <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
+          
+          {videoRef.current?.srcObject && (
+            <button
+              onClick={capturePhoto}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              撮影
+            </button>
+          )}
+
           <button
             onClick={handleUpload}
-            disabled={!selectedFile || isUploading}
+            disabled={!imageSrc || isUploading}
             className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
-              (!selectedFile || isUploading) ? 'opacity-50 cursor-not-allowed' : ''
+              (!imageSrc || isUploading) ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isUploading ? 'アップロード中...' : 'アップロード'}
