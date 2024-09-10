@@ -141,7 +141,7 @@ export default function Home() {
       <div className="flex flex-col items-center gap-4">
           <input
             type="file"
-            accept="image/*"
+            accept="image/*;capture=camera"
             onChange={handleFileSelect}
             className="mb-4"
           />
